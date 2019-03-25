@@ -43,6 +43,7 @@
 (defvar *state*)
 (defvar *next-tick*)
 (defvar *skip-ticks* (float (/ 1000 60)))
+(defvar *sleep-ticks*)
 
 (defun initialize (renderer)
   (setf *state*
@@ -58,7 +59,8 @@
                                                            :timer 0
                                                            :duration 10
                                                            :texture (sdl2:create-texture-from-surface renderer (sdl2:load-bmp "run.bmp")))))))
-  (setf *next-tick* 0))
+  (setf *next-tick* 0)
+  (setf *sleep-ticks* 0))
 
 (defun main ()
   (sdl2:with-init (:video)
@@ -72,11 +74,12 @@
              (sdl2:push-event :quit)))
           (:idle
            ()
-           (if (> (sdl2:get-ticks) *next-tick*)
-               (progn
-                 (update)
-                 (incf *next-tick* *skip-ticks*)))
-           (draw renderer))
+           (update)
+           (draw renderer)
+           (incf *next-tick* *skip-ticks*)
+           (setf *sleep-ticks* (- *next-tick* (sdl2:get-ticks)))
+           (if (> *sleep-ticks* 0)
+               (sdl2:delay (floor *sleep-ticks*))))
           (:quit () t))))))
 
 (defun draw (renderer)
