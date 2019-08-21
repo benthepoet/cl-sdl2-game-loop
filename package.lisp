@@ -27,8 +27,9 @@
     :initarg :duration)
    (timer
     :initarg :timer)
-   (texture
-    :initarg :texture)))
+   (texture-path
+    :initarg :texture-path
+    :accessor texture-path)))
 
 (defclass sprite ()
   ((animation
@@ -36,26 +37,31 @@
     :accessor animation)))
 
 (defclass game-state ()
-  ((sprites
+  ((renderer
+    :initarg :renderer
+    :accessor renderer)
+   (sprites
     :initarg :sprites
-    :accessor sprites)))
+    :accessor sprites)
+   (textures
+    :initarg :textures
+    :accessor textures)))
 
-(defvar *state*)
-
-(defun initialize (renderer)
-  (setf *state*
-        (make-instance 'game-state
-                       :sprites (list (make-instance 'sprite
-                                            :animation (make-instance 'animation
-                                                           :x 0
-                                                           :y 0
-                                                           :w 24
-                                                           :h 24
-                                                           :current 0
-                                                           :total 4
-                                                           :timer 0
-                                                           :duration 10
-                                                           :texture (sdl2:create-texture-from-surface renderer (sdl2:load-bmp "projects/cl-sdl2-game-loop/run.bmp"))))))))
+(defun make-state (renderer)
+  (make-instance 'game-state
+                 :renderer renderer
+                 :textures (make-hash-table)
+                 :sprites (list (make-instance 'sprite
+                                                      :animation (make-instance 'animation
+                                                                                :x 0
+                                                                                :y 0
+                                                                                :w 24
+                                                                                :h 24
+                                                                                :current 0
+                                                                                :total 4
+                                                                                :timer 0
+                                                                                :duration 10
+                                                                                :texture-path "projects/cl-sdl2-game-loop/run.bmp")))))
 
 (defmacro with-game-loop (&rest body)
   `(let ((next-tick 0)
@@ -79,29 +85,40 @@
   (sdl2:with-init (:video)
     (sdl2:with-window (window :title "Demo" :w 640 :h 480 :flags '(:shown))
       (sdl2:with-renderer (renderer window)
-        (initialize renderer)
-        (with-game-loop
-          (update)
-          (draw renderer))))))
+        (let ((state (make-state renderer)))
+          (load-textures state)
+          (with-game-loop
+              (update state)
+              (draw state)))))))
+
+(defun load-textures (state)
+  (loop for sprite in (sprites state)
+        do (let ((texture-path (texture-path (animation sprite))))
+             (unless (gethash texture-path (textures state))
+               (setf (gethash texture-path (textures state))
+                     (sdl2:create-texture-from-surface (renderer state) (sdl2:load-bmp texture-path)))))))
 
 (defun clear-screen (renderer)
   (sdl2:set-render-draw-color renderer 255 255 255 255)
   (sdl2:render-clear renderer))
 
-(defun draw (renderer)
-  (clear-screen renderer)
-  (loop for sprite in (sprites *state*) do
-        (draw-sprite renderer sprite))
-  (sdl2:render-present renderer))
+(defun draw (state)
+  (let ((renderer (renderer state)))
+    (clear-screen renderer)
+    (loop for sprite in (sprites state) do
+          (draw-sprite state sprite))
+    (sdl2:render-present renderer)))
 
-(defun draw-sprite (renderer sprite)
-  (with-slots (x y w h texture) (animation sprite)
+(defun draw-sprite (state sprite)
+  (with-slots (x y w h texture-path) (animation sprite)
     (let ((source-rect (make-rect x y w h))
-          (dest-rect (make-rect 0 0 (scale w) (scale h))))
+          (dest-rect (make-rect 0 0 (scale w) (scale h)))
+          (renderer (renderer state))
+          (texture (gethash texture-path (textures state))))
       (sdl2:render-copy renderer texture :source-rect source-rect :dest-rect dest-rect))))
 
-(defun update ()
-  (loop for sprite in (sprites *state*) do
+(defun update (state)
+  (loop for sprite in (sprites state) do
         (update-animation sprite)))
 
 (defmethod update-animation ((obj sprite))
