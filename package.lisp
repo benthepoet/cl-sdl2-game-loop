@@ -75,9 +75,8 @@
       (:idle
        ()
        ,@body
-       (incf next-tick skip-ticks)
-       (setf sleep-ticks (- next-tick (sdl2:get-ticks)))
-       (if (> sleep-ticks 0)
+       (setf sleep-ticks (- (incf next-tick skip-ticks) (sdl2:get-ticks)))
+       (when (> sleep-ticks 0)
            (sdl2:delay (floor sleep-ticks))))
       (:quit () t))))
 
@@ -105,8 +104,8 @@
 (defun draw (state)
   (let ((renderer (renderer state)))
     (clear-screen renderer)
-    (loop for sprite in (sprites state) do
-          (draw-sprite state sprite))
+    (loop for sprite in (sprites state)
+          do (draw-sprite state sprite))
     (sdl2:render-present renderer)))
 
 (defun draw-sprite (state sprite)
@@ -123,14 +122,11 @@
 
 (defmethod update-animation ((obj sprite))
   (with-slots (x w current total duration timer) (animation obj)
-    (incf timer)
-    (if (> timer duration)
-        (progn
-          (setf timer 0)
-          (incf current)
-          (if (= current total)
-              (setf current 0))
-          (setf x (* current w))))))
+    (when (> (incf timer) duration)
+        (setf timer 0)
+        (when (= (incf current) total)
+          (setf current 0))
+        (setf x (* current w)))))
 
 (defun scale (x)
   (* x 3))
