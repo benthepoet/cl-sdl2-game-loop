@@ -92,9 +92,10 @@
 
 (defun load-textures (state)
   (loop for sprite in (sprites state)
-        do (let ((texture-path (texture-path (animation sprite))))
-             (unless (gethash texture-path (textures state))
-               (setf (gethash texture-path (textures state))
+        do (let ((texture-path (texture-path (animation sprite)))
+                 (textures (textures state)))
+             (unless (gethash texture-path textures)
+               (setf (gethash texture-path textures)
                      (sdl2:create-texture-from-surface (renderer state) (sdl2:load-bmp texture-path)))))))
 
 (defun clear-screen (renderer)
