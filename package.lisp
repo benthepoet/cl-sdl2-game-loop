@@ -58,7 +58,7 @@
                                                            :total 4
                                                            :timer 0
                                                            :duration 10
-                                                           :texture (sdl2:create-texture-from-surface renderer (sdl2:load-bmp "run.bmp")))))))
+                                                           :texture (sdl2:create-texture-from-surface renderer (sdl2:load-bmp "projects/cl-sdl2-game-loop/run.bmp")))))))
   (setf *next-tick* 0)
   (setf *sleep-ticks* 0))
 
@@ -82,13 +82,14 @@
                (sdl2:delay (floor *sleep-ticks*))))
           (:quit () t))))))
 
-(defun draw (renderer)
+(defun clear-screen (renderer)
   (sdl2:set-render-draw-color renderer 255 255 255 255)
-  (sdl2:render-clear renderer)
+  (sdl2:render-clear renderer))
 
+(defun draw (renderer)
+  (clear-screen renderer)
   (loop for sprite in (sprites *state*) do
         (draw-sprite renderer sprite))
-  
   (sdl2:render-present renderer))
 
 (defun draw-sprite (renderer sprite)
@@ -99,10 +100,10 @@
 
 (defun update ()
   (loop for sprite in (sprites *state*) do
-        (update-sprite sprite)))
+        (update-animation sprite)))
 
-(defun update-sprite (sprite)
-  (with-slots (x w current total duration timer) (animation sprite)
+(defmethod update-animation ((obj sprite))
+  (with-slots (x w current total duration timer) (animation obj)
     (incf timer)
     (if (> timer duration)
         (progn
