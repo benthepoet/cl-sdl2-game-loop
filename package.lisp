@@ -41,9 +41,6 @@
     :accessor sprites)))
 
 (defvar *state*)
-(defvar *next-tick*)
-(defvar *skip-ticks* (float (/ 1000 60)))
-(defvar *sleep-ticks*)
 
 (defun initialize (renderer)
   (setf *state*
@@ -58,29 +55,34 @@
                                                            :total 4
                                                            :timer 0
                                                            :duration 10
-                                                           :texture (sdl2:create-texture-from-surface renderer (sdl2:load-bmp "projects/cl-sdl2-game-loop/run.bmp")))))))
-  (setf *next-tick* 0)
-  (setf *sleep-ticks* 0))
+                                                           :texture (sdl2:create-texture-from-surface renderer (sdl2:load-bmp "projects/cl-sdl2-game-loop/run.bmp"))))))))
+
+(defmacro with-game-loop (&rest body)
+  `(let ((next-tick 0)
+        (sleep-ticks 0)
+        (skip-ticks (float (/ 1000 60))))
+    (sdl2:with-event-loop (:method :poll)
+      (:keyup
+       (:keysym keysym)
+       (when (sdl2:scancode= (sdl2:scancode-value keysym) :scancode-escape)
+         (sdl2:push-event :quit)))
+      (:idle
+       ()
+       ,@body
+       (incf next-tick skip-ticks)
+       (setf sleep-ticks (- next-tick (sdl2:get-ticks)))
+       (if (> sleep-ticks 0)
+           (sdl2:delay (floor sleep-ticks))))
+      (:quit () t))))
 
 (defun main ()
   (sdl2:with-init (:video)
-    (sdl2:with-window (win :title "Demo" :w 640 :h 480 :flags '(:shown))
-      (sdl2:with-renderer (renderer win)
+    (sdl2:with-window (window :title "Demo" :w 640 :h 480 :flags '(:shown))
+      (sdl2:with-renderer (renderer window)
         (initialize renderer)
-        (sdl2:with-event-loop (:method :poll)
-          (:keyup
-           (:keysym keysym)
-           (when (sdl2:scancode= (sdl2:scancode-value keysym) :scancode-escape)
-             (sdl2:push-event :quit)))
-          (:idle
-           ()
-           (update)
-           (draw renderer)
-           (incf *next-tick* *skip-ticks*)
-           (setf *sleep-ticks* (- *next-tick* (sdl2:get-ticks)))
-           (if (> *sleep-ticks* 0)
-               (sdl2:delay (floor *sleep-ticks*))))
-          (:quit () t))))))
+        (with-game-loop
+          (update)
+          (draw renderer))))))
 
 (defun clear-screen (renderer)
   (sdl2:set-render-draw-color renderer 255 255 255 255)
