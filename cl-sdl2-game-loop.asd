@@ -5,12 +5,13 @@
 |#
 
 (in-package #:cl-user)
-(asdf:defsystem sdl-test
+(asdf:defsystem cl-sdl2-game-loop
   :version "0.0.0"
   :license "BSD-3"
   :author "Ben Hanna <benpaulhanna@gmail.com>"
   :maintainer "Ben Hanna <benpaulhanna@gmail.com>"
   :description ""
   :serial T
-  :components ((:file "package"))
+  :components ((:file "package")
+               (:file "core"))
   :depends-on (:sdl2))
