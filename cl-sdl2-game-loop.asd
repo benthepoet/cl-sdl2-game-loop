@@ -13,5 +13,7 @@
   :description ""
   :serial T
   :components ((:file "package")
+               (:file "classes")
+               (:file "constants")
                (:file "core"))
   :depends-on (:sdl2))
