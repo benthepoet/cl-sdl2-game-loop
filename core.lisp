@@ -10,16 +10,16 @@
                  :renderer renderer
                  :textures (make-hash-table :test #'equal)
                  :sprites (list (make-instance 'sprite
-                                                      :animation (make-instance 'animation
-                                                                                :x 0
-                                                                                :y 0
-                                                                                :w 24
-                                                                                :h 24
-                                                                                :current 0
-                                                                                :total 4
-                                                                                :timer 0
-                                                                                :duration 10
-                                                                                :texture-path "assets/run.bmp")))))
+                                               :animation (make-instance 'animation
+                                                                         :x 0
+                                                                         :y 0
+                                                                         :w 24
+                                                                         :h 24
+                                                                         :current 0
+                                                                         :total 4
+                                                                         :timer 0
+                                                                         :duration 10
+                                                                         :texture-path "assets/run.bmp")))))
 
 (defmacro with-game-loop (&rest body)
   `(let ((next-tick 0)
