@@ -10,6 +10,8 @@
 
 (in-package #:sdl-test)
 
+(defparameter +base-path+ (directory-namestring (asdf:system-source-directory :sdl-test)))
+
 (defclass animation ()
   ((x
     :initarg :x)
@@ -50,7 +52,7 @@
 (defun make-state (renderer)
   (make-instance 'game-state
                  :renderer renderer
-                 :textures (make-hash-table)
+                 :textures (make-hash-table :test #'equal)
                  :sprites (list (make-instance 'sprite
                                                       :animation (make-instance 'animation
                                                                                 :x 0
@@ -61,7 +63,7 @@
                                                                                 :total 4
                                                                                 :timer 0
                                                                                 :duration 10
-                                                                                :texture-path "projects/cl-sdl2-game-loop/run.bmp")))))
+                                                                                :texture-path "assets/run.bmp")))))
 
 (defmacro with-game-loop (&rest body)
   `(let ((next-tick 0)
@@ -97,7 +99,8 @@
                  (textures (textures state)))
              (unless (gethash texture-path textures)
                (setf (gethash texture-path textures)
-                     (sdl2:create-texture-from-surface (renderer state) (sdl2:load-bmp texture-path)))))))
+                     (sdl2:create-texture-from-surface (renderer state)
+                                                       (sdl2:load-bmp (format nil "~a~a" +base-path+ texture-path))))))))
 
 (defun clear-screen (renderer)
   (sdl2:set-render-draw-color renderer 255 255 255 255)
