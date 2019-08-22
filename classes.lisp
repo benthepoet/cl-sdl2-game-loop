@@ -34,7 +34,7 @@
     :initarg :sprites
     :accessor sprites)
    (textures
-    :initarg :textures
+    :initform (make-hash-table :test #'equal)
     :accessor textures)))
 
 (defun make-animation (x y w h total duration texture-path)
@@ -54,7 +54,6 @@
 (defun make-game-state (renderer)
   (make-instance 'game-state
                  :renderer renderer
-                 :textures (make-hash-table :test #'equal)
                  :sprites (list
                            (make-sprite
                             (make-animation 0 0 24 24 4 10 "assets/run.bmp")))))
