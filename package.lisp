@@ -74,8 +74,9 @@
          (sdl2:push-event :quit)))
       (:idle
        ()
+       (setf next-tick (+ (sdl2:get-ticks) skip-ticks))
        ,@body
-       (setf sleep-ticks (- (incf next-tick skip-ticks) (sdl2:get-ticks)))
+       (setf sleep-ticks (- next-tick (sdl2:get-ticks)))
        (when (> sleep-ticks 0)
            (sdl2:delay (floor sleep-ticks))))
       (:quit () t))))
