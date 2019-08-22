@@ -5,22 +5,6 @@
 |#
 (in-package :cl-sdl2-game-loop)
 
-(defun make-state (renderer)
-  (make-instance 'game-state
-                 :renderer renderer
-                 :textures (make-hash-table :test #'equal)
-                 :sprites (list (make-instance 'sprite
-                                               :animation (make-instance 'animation
-                                                                         :x 0
-                                                                         :y 0
-                                                                         :w 24
-                                                                         :h 24
-                                                                         :current 0
-                                                                         :total 4
-                                                                         :timer 0
-                                                                         :duration 10
-                                                                         :texture-path "assets/run.bmp")))))
-
 (defmacro with-game-loop (&rest body)
   `(let ((next-tick 0)
         (sleep-ticks 0)
@@ -43,7 +27,7 @@
   (sdl2:with-init (:video)
     (sdl2:with-window (window :title "Demo" :w 640 :h 480 :flags '(:shown))
       (sdl2:with-renderer (renderer window)
-        (let ((state (make-state renderer)))
+        (let ((state (make-game-state renderer)))
           (load-textures state)
           (with-game-loop
               (update state)
