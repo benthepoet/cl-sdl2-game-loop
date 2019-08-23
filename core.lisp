@@ -8,7 +8,7 @@
 (defmacro with-game-loop (&rest body)
   `(let ((next-tick 0)
         (sleep-ticks 0)
-        (skip-ticks (float (/ 1000 60))))
+        (skip-ticks (float (/ 1000 +frame-rate+))))
     (sdl2:with-event-loop (:method :poll)
       (:keyup
        (:keysym keysym)
@@ -25,7 +25,7 @@
 
 (defun main ()
   (sdl2:with-init (:video)
-    (sdl2:with-window (window :title "Demo" :w 640 :h 480 :flags '(:shown))
+    (sdl2:with-window (window :title +game-title+ :w +screen-width+ :h +screen-height+ :flags '(:shown))
       (sdl2:with-renderer (renderer window)
         (let ((state (make-game-state renderer)))
           (load-textures state)
@@ -74,4 +74,4 @@
         (setf x (* current w)))))
 
 (defun scale (x)
-  (* x 3))
+  (* x +scale-factor+))
