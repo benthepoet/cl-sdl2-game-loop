@@ -63,10 +63,10 @@
 
 (defun update (state)
   (loop for sprite in (sprites state) do
-        (update-animation sprite)))
+        (update-animation (animation sprite))))
 
-(defmethod update-animation ((obj sprite))
-  (with-slots (frame-width frame-count frame-total frame-duration frame-timer repeat) (animation obj)
+(defmethod update-animation ((obj animation))
+  (with-slots (frame-width frame-count frame-total frame-duration frame-timer repeat) obj
     (when (> (incf frame-timer) frame-duration)
         (setf frame-timer 0)
         (unless (= frame-count frame-total)
