@@ -7,8 +7,8 @@
 
 (defmacro with-game-loop (&rest body)
   `(let ((next-tick 0)
-        (sleep-ticks 0)
-        (skip-ticks (float (/ 1000 +frame-rate+))))
+         (sleep-ticks 0)
+         (skip-ticks (float (/ 1000 +frame-rate+))))
     (sdl2:with-event-loop (:method :poll)
       (:keyup
        (:keysym keysym)
@@ -35,7 +35,7 @@
 
 (defun load-textures (state)
   (loop for sprite in (sprites state)
-        do (let ((texture-path (texture-path (animation sprite)))
+        do (let ((texture-path (texture-path sprite))
                  (textures (textures state)))
              (unless (gethash texture-path textures)
                (setf (gethash texture-path textures)
@@ -54,12 +54,11 @@
     (sdl2:render-present renderer)))
 
 (defun draw-sprite (state sprite)
-  (with-slots (frame-count frame-width frame-height texture-path) (animation sprite)
+  (with-slots (frame-count frame-width frame-height) (animation sprite)
     (let ((source-rect (make-rect (* frame-count frame-width) 0 frame-width frame-height))
           (dest-rect (make-rect 0 0 (scale frame-width) (scale frame-height)))
-          (renderer (renderer state))
-          (texture (gethash texture-path (textures state))))
-      (sdl2:render-copy renderer texture :source-rect source-rect :dest-rect dest-rect))))
+          (texture (gethash (texture-path sprite) (textures state))))
+      (sdl2:render-copy (renderer state) texture :source-rect source-rect :dest-rect dest-rect))))
 
 (defun update (state)
   (loop for sprite in (sprites state) do

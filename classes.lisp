@@ -3,6 +3,10 @@
 (defclass animation ()
   ((name
     :initarg :name)
+   (x-offset
+    :initarg :x-offset)
+   (y-offset
+    :initarg :y-offset)
    (frame-width
     :initarg :frame-width)
    (frame-height
@@ -13,9 +17,6 @@
     :initarg :frame-duration)
    (repeat
     :initarg :repeat)
-   (texture-path
-    :initarg :texture-path
-    :accessor texture-path)
    (frame-count
     :initform 0)
    (frame-timer
@@ -24,7 +25,10 @@
 (defclass sprite ()
   ((animation
     :initarg :animation
-    :accessor animation)))
+    :accessor animation)
+   (texture-path
+    :initarg :texture-path
+    :accessor texture-path)))
 
 (defclass game-state ()
   ((renderer
@@ -37,18 +41,20 @@
     :initform (make-hash-table :test #'equal)
     :accessor textures)))
 
-(defun make-animation (name frame-width frame-height frame-total frame-duration repeat texture-path)
+(defun make-animation (name x-offset y-offset frame-width frame-height frame-total frame-duration repeat)
   (make-instance 'animation
                  :name name
+                 :x-offset x-offset
+                 :y-offset y-offset
                  :frame-width frame-width
                  :frame-height frame-height
                  :frame-total frame-total
                  :frame-duration frame-duration
-                 :repeat repeat
-                 :texture-path texture-path))
+                 :repeat repeat))
 
-(defun make-sprite (animation)
+(defun make-sprite (texture-path animation)
   (make-instance 'sprite
+                 :texture-path texture-path
                  :animation animation))
 
 (defun make-game-state (renderer)
@@ -56,5 +62,6 @@
                  :renderer renderer
                  :sprites (list
                            (make-sprite
-                            (make-animation "run" 24 24 4 10 t "assets/run.bmp")))))
+                            "assets/player.bmp"
+                            (make-animation "run" 0 0 24 24 4 10 t)))))
 
