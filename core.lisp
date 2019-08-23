@@ -66,7 +66,7 @@
         (update-animation (animation sprite))))
 
 (defmethod update-animation ((obj animation))
-  (with-slots (frame-width frame-count frame-total frame-duration frame-timer repeat) obj
+  (with-slots (frame-count frame-total frame-duration frame-timer repeat) obj
     (when (> (incf frame-timer) frame-duration)
         (setf frame-timer 0)
         (when (= (incf frame-count) frame-total)
