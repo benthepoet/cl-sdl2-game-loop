@@ -23,9 +23,9 @@
     :initform 0)))
 
 (defclass sprite ()
-  ((animation
-    :initarg :animation
-    :accessor animation)
+  ((animations
+    :initarg :animations
+    :accessor animations)
    (texture-path
     :initarg :texture-path
     :accessor texture-path)))
@@ -52,10 +52,10 @@
                  :frame-duration frame-duration
                  :repeat repeat))
 
-(defun make-sprite (texture-path animation)
+(defun make-sprite (texture-path animations)
   (make-instance 'sprite
                  :texture-path texture-path
-                 :animation animation))
+                 :animations animations))
 
 (defun make-game-state (renderer)
   (make-instance 'game-state
@@ -63,5 +63,5 @@
                  :sprites (list
                            (make-sprite
                             "assets/player.bmp"
-                            (make-animation "run" 0 0 24 24 4 10 t)))))
+                            (list (make-animation 'run 0 0 24 24 4 10 t))))))
 

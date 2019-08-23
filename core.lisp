@@ -54,7 +54,7 @@
     (sdl2:render-present renderer)))
 
 (defun draw-sprite (state sprite)
-  (with-slots (frame-count frame-width frame-height) (animation sprite)
+  (with-slots (frame-count frame-width frame-height) (car (animations sprite))
     (let ((source-rect (make-rect (* frame-count frame-width) 0 frame-width frame-height))
           (dest-rect (make-rect 0 0 (scale frame-width) (scale frame-height)))
           (texture (gethash (texture-path sprite) (textures state))))
@@ -62,7 +62,7 @@
 
 (defun update (state)
   (loop for sprite in (sprites state) do
-        (update-animation (animation sprite))))
+        (update-animation (car (animations sprite)))))
 
 (defmethod update-animation ((obj animation))
   (with-slots (frame-count frame-total frame-duration frame-timer repeat) obj
