@@ -69,12 +69,10 @@
   (with-slots (frame-width frame-count frame-total frame-duration frame-timer repeat) obj
     (when (> (incf frame-timer) frame-duration)
         (setf frame-timer 0)
-        (unless (= frame-count frame-total)
-          (incf frame-count)))
-    (when (= frame-count frame-total)
-      (if repeat
-          (setf frame-count 0)
-          (decf frame-count)))))
+        (when (= (incf frame-count) frame-total)
+          (if repeat
+              (setf frame-count 0)
+              (decf frame-count))))))
 
 (defun scale (x)
   (* x +scale-factor+))
