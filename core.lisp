@@ -56,7 +56,7 @@
 (defun draw-sprite (state sprite)
   (with-slots (frame-count frame-width frame-height) (car (animations sprite))
     (let ((source-rect (make-rect (* frame-count frame-width) 0 frame-width frame-height))
-          (dest-rect (make-rect 0 0 (scale frame-width) (scale frame-height)))
+          (dest-rect (make-rect (scale (x-position sprite)) (scale (y-position sprite)) (scale frame-width) (scale frame-height)))
           (texture (gethash (texture-path sprite) (textures state))))
       (sdl2:render-copy (renderer state) texture :source-rect source-rect :dest-rect dest-rect))))
 
