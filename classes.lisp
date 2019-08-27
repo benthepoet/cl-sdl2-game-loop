@@ -31,12 +31,12 @@
     :initform 0
     :initarg :y-position
     :accessor y-position)
+   (texture-key
+    :initarg :texture-key
+    :accessor texture-key)
    (animations
     :initarg :animations
-    :accessor animations)
-   (texture-path
-    :initarg :texture-path
-    :accessor texture-path)))
+    :accessor animations)))
 
 (defclass game-state ()
   ((renderer
@@ -60,17 +60,17 @@
                  :frame-duration frame-duration
                  :repeat repeat))
 
-(defun make-sprite (x-position y-position texture-path animations)
+(defun make-sprite (x-position y-position texture-key animations)
   (make-instance 'sprite
                  :x-position x-position
                  :y-position y-position
-                 :texture-path texture-path
+                 :texture-key texture-key
                  :animations animations))
 
 (defun make-player (x-position y-position)
   (make-sprite x-position
                y-position
-               "assets/player.bmp"
+               'player
                (list (make-animation :run 0 0 24 24 4 10 t))))
 
 (defun make-game-state (renderer)

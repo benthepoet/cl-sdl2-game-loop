@@ -35,12 +35,15 @@
 
 (defun load-textures (state)
   (loop for sprite in (sprites state)
-        do (let ((texture-path (texture-path sprite))
+        do (let ((texture-key (texture-key sprite))
                  (textures (textures state)))
-             (unless (gethash texture-path textures)
-               (setf (gethash texture-path textures)
+             (unless (gethash texture-key textures)
+               (setf (gethash texture-key textures)
                      (sdl2:create-texture-from-surface (renderer state)
-                                                       (sdl2:load-bmp (format nil "~a~a" +base-path+ texture-path))))))))
+                                                       (sdl2:load-bmp (texture-path texture-key))))))))
+
+(defun texture-path (texture-key)
+  (format nil "~aassets/~a.bmp" +base-path+ (string-downcase texture-key)))
 
 (defun clear-screen (renderer)
   (sdl2:set-render-draw-color renderer 255 255 255 255)
@@ -57,7 +60,7 @@
   (with-slots (frame-count frame-width frame-height) (car (animations sprite))
     (let ((source-rect (make-rect (* frame-count frame-width) 0 frame-width frame-height))
           (dest-rect (make-rect (scale (x-position sprite)) (scale (y-position sprite)) (scale frame-width) (scale frame-height)))
-          (texture (gethash (texture-path sprite) (textures state))))
+          (texture (gethash (texture-key sprite) (textures state))))
       (sdl2:render-copy (renderer state) texture :source-rect source-rect :dest-rect dest-rect))))
 
 (defun update (state)
