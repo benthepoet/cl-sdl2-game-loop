@@ -38,9 +38,10 @@
         do (let ((texture-key (texture-key sprite))
                  (textures (textures state)))
              (unless (gethash texture-key textures)
-               (setf (gethash texture-key textures)
-                     (sdl2:create-texture-from-surface (renderer state)
-                                                       (sdl2:load-bmp (texture-path texture-key))))))))
+               (let ((surface (sdl2:load-bmp (texture-path texture-key))))
+                 (setf (gethash texture-key textures)
+                       (sdl2:create-texture-from-surface (renderer state) surface))
+                 (sdl2:free-surface surface))))))
 
 (defun texture-path (texture-key)
   (format nil "~aassets/~a.bmp" +base-path+ (string-downcase texture-key)))

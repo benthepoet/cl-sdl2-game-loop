@@ -32,16 +32,11 @@
     :initarg :y-position
     :accessor y-position)
    (texture-key
+    :initarg :texture-key
     :accessor texture-key)
    (animations
+    :initarg :animations
     :accessor animations)))
-
-(defclass player (sprite)
-  ((texture-key
-    :initform 'player)
-   (animations
-    :initform (list (make-animation :idle 0 0 24 24 1 1 nil)
-                    (make-animation :walk 0 0 24 24 4 10 t)))))
 
 (defclass game-state ()
   ((renderer
@@ -66,11 +61,20 @@
                  :repeat repeat))
 
 (defun make-player (x-position y-position)
-  (make-instance 'player
+  (make-instance 'sprite
                  :x-position x-position
-                 :y-position y-position))
+                 :y-position y-position
+                 :texture-key 'player
+                 :animations (list (make-animation :walk 0 0 24 24 4 10 t))))
 
 (defun make-game-state (renderer)
   (make-instance 'game-state
                  :renderer renderer
                  :sprites (list (make-player 0 120))))
+
+(defparameter +config+
+  '(:textures
+    (player "assets/player.bmp")
+    :animations
+    (player-walk 0 0 24 24 4 10 t)
+    (player-idle 0 0 24 24 1 1 nil)))
