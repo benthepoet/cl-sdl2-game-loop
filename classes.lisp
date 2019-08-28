@@ -39,15 +39,9 @@
     :accessor animations)))
 
 (defclass game-state ()
-  ((renderer
-    :initarg :renderer
-    :accessor renderer)
-   (sprites
+  ((sprites
     :initarg :sprites
-    :accessor sprites)
-   (textures
-    :initform (make-hash-table)
-    :accessor textures)))
+    :accessor sprites)))
 
 (defun make-animation (name x-offset y-offset frame-width frame-height frame-total frame-duration repeat)
   (make-instance 'animation
@@ -67,14 +61,7 @@
                  :texture-key 'player
                  :animations (list (make-animation :walk 0 0 24 24 4 10 t))))
 
-(defun make-game-state (renderer)
+(defun make-game-state ()
   (make-instance 'game-state
-                 :renderer renderer
-                 :sprites (list (make-player 0 120))))
-
-(defparameter +config+
-  '(:textures
-    (player "assets/player.bmp")
-    :animations
-    (player-walk 0 0 24 24 4 10 t)
-    (player-idle 0 0 24 24 1 1 nil)))
+                 :sprites (list (make-player 0 120)
+                                (make-player 80 80))))
