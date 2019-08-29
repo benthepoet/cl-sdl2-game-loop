@@ -26,28 +26,28 @@
   ((x-position
     :initform 0
     :initarg :x-position
-    :accessor x-position)
+    :accessor sprite-x-position)
    (y-position
     :initform 0
     :initarg :y-position
-    :accessor y-position)
+    :accessor sprite-y-position)
    (texture-key
     :initarg :texture-key
-    :accessor texture-key)
+    :accessor sprite-texture-key)
    (animations
     :initarg :animations
-    :accessor animations)))
+    :accessor sprite-animations)))
 
-(defclass game-state ()
+(defclass game ()
   ((renderer
     :initarg :renderer
-    :accessor renderer)
+    :accessor game-renderer)
    (sprites
     :initarg :sprites
-    :accessor sprites)
+    :accessor game-sprites)
    (textures
     :initarg :textures
-    :accessor textures)))
+    :accessor game-textures)))
 
 (defun make-animation (name x-offset y-offset frame-width frame-height frame-total frame-duration repeat)
   (make-instance 'animation
@@ -67,8 +67,8 @@
                  :texture-key 'player
                  :animations (list (make-animation :walk 0 0 24 24 4 10 t))))
 
-(defun make-game-state (renderer)
-  (make-instance 'game-state
+(defun make-game (renderer)
+  (make-instance 'game
                  :renderer renderer
                  :textures (make-hash-table)
                  :sprites (list (make-player 0 120)

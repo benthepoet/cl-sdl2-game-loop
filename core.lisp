@@ -5,10 +5,11 @@
 |#
 (in-package :cl-sdl2-game-loop)
 
-(defmacro with-game-loop (&rest body)
+(defmacro with-game-loop ((game-sym renderer-sym) &rest forms)
   `(let ((next-tick 0)
          (sleep-ticks 0)
-         (skip-ticks (float (/ 1000 +frame-rate+))))
+         (skip-ticks (float (/ 1000 +frame-rate+)))
+         (,game-sym (make-game ,renderer-sym)))
     (sdl2:with-event-loop (:method :poll)
       (:keyup
        (:keysym keysym)
@@ -17,7 +18,7 @@
       (:idle
        ()
        (setf next-tick (+ (sdl2:get-ticks) skip-ticks))
-       ,@body
+       ,@forms
        (setf sleep-ticks (- next-tick (sdl2:get-ticks)))
        (when (> sleep-ticks 0)
            (sdl2:delay (floor sleep-ticks))))
@@ -27,12 +28,11 @@
   (sdl2:with-init (:video)
     (sdl2:with-window (window :title +game-title+ :w +screen-width+ :h +screen-height+ :flags '(:shown))
       (sdl2:with-renderer (renderer window)
-        (let ((game-state (make-game-state renderer)))
-          (with-game-loop
-              (update game-state)
-              (draw game-state)))))))
+        (with-game-loop (game renderer)
+          (update game)
+          (draw game))))))
 
-(defmethod get-texture ((obj game-state) texture-key)
+(defmethod get-texture ((obj game) texture-key)
   (with-slots (renderer textures) obj
     (unless (gethash texture-key textures)
       (let ((surface (sdl2:load-bmp (texture-path texture-key))))
@@ -44,31 +44,35 @@
 (defun texture-path (texture-key)
   (format nil "~aassets/~a.bmp" +base-path+ (string-downcase texture-key)))
 
-(defmethod draw ((obj game-state))
+(defmethod draw ((obj game))
   (with-slots (renderer sprites) obj
     (sdl2:set-render-draw-color renderer 255 255 255 255)
     (sdl2:render-clear renderer)
 
-    (loop for sprite in (sprites obj)
+    (loop for sprite in sprites
           do (draw-sprite obj sprite))
 
     (sdl2:render-present renderer)))
 
-(defmethod draw-sprite ((obj game-state) sprite)
-  (with-slots (frame-count frame-width frame-height) (car (animations sprite))
+(defmethod draw-sprite ((obj game) sprite)
+  (with-slots (frame-count frame-width frame-height) (car (sprite-animations sprite))
     (let ((source-rect (make-rect (* frame-count frame-width) 0 frame-width frame-height))
-          (dest-rect (make-rect (scale (x-position sprite)) (scale (y-position sprite)) (scale frame-width) (scale frame-height))))
-      (render-texture obj (texture-key sprite) source-rect dest-rect))))
+          (dest-rect (make-rect
+                      (scale (sprite-x-position sprite))
+                      (scale (sprite-y-position sprite))
+                      (scale frame-width)
+                      (scale frame-height))))
+      (render-texture obj (sprite-texture-key sprite) source-rect dest-rect))))
 
-(defmethod render-texture ((obj game-state) texture-key source-rect dest-rect)
-  (sdl2:render-copy (renderer obj)
+(defmethod render-texture ((obj game) texture-key source-rect dest-rect)
+  (sdl2:render-copy (game-renderer obj)
                     (get-texture obj texture-key)
                     :source-rect source-rect
                     :dest-rect dest-rect))
 
-(defmethod update ((obj game-state))
-  (loop for sprite in (sprites obj) do
-        (update-animation (car (animations sprite)))))
+(defmethod update ((obj game))
+  (loop for sprite in (game-sprites obj) do
+        (update-animation (car (sprite-animations sprite)))))
 
 (defmethod update-animation ((obj animation))
   (with-slots (frame-count frame-total frame-duration frame-timer repeat) obj
