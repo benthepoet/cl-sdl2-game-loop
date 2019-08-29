@@ -49,8 +49,8 @@
     (sdl2:set-render-draw-color renderer 255 255 255 255)
     (sdl2:render-clear renderer)
 
-    (loop for sprite in sprites
-          do (draw-sprite obj sprite))
+    (dolist (sprite sprites)
+      (draw-sprite obj sprite))
 
     (sdl2:render-present renderer)))
 
@@ -71,8 +71,8 @@
                     :dest-rect dest-rect))
 
 (defmethod update ((obj game))
-  (loop for sprite in (game-sprites obj) do
-        (update-animation (car (sprite-animations sprite)))))
+  (dolist (sprite (game-sprites obj))
+    (update-animation (car (sprite-animations sprite)))))
 
 (defmethod update-animation ((obj animation))
   (with-slots (frame-count frame-total frame-duration frame-timer repeat) obj
