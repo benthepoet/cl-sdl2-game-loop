@@ -62,7 +62,8 @@
                  :x-position x-position
                  :y-position y-position
                  :texture-key 'player
-                 :animations (list (cons :walk (make-animation 0 0 24 24 4 10 t)))))
+                 :animations (list (cons :idle (make-animation 96 0 24 24 2 5 nil))
+                                   (cons :walk (make-animation 0 0 24 24 4 10 t)))))
 
 (defun make-game (renderer)
   (make-instance 'game

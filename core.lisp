@@ -55,8 +55,8 @@
     (sdl2:render-present renderer)))
 
 (defmethod draw-sprite ((obj game) sprite)
-  (with-slots (frame-count frame-width frame-height) (get-animation sprite)
-    (let ((source-rect (make-rect (* frame-count frame-width) 0 frame-width frame-height))
+  (with-slots (x-offset y-offset frame-count frame-width frame-height) (get-animation sprite)
+    (let ((source-rect (make-rect (+ x-offset (* frame-count frame-width)) y-offset frame-width frame-height))
           (dest-rect (make-rect
                       (scale (sprite-x-position sprite))
                       (scale (sprite-y-position sprite))
