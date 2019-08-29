@@ -32,8 +32,8 @@
           (update game)
           (draw game))))))
 
-(defmethod get-texture ((obj game) texture-key)
-  (with-slots (renderer textures) obj
+(defun get-texture (game texture-key)
+  (with-slots (renderer textures) game
     (unless (gethash texture-key textures)
       (let ((surface (sdl2:load-bmp (texture-path texture-key))))
         (setf (gethash texture-key textures)
@@ -44,17 +44,17 @@
 (defun texture-path (texture-key)
   (format nil "~aassets/~a.bmp" +base-path+ (string-downcase texture-key)))
 
-(defmethod draw ((obj game))
-  (with-slots (renderer sprites) obj
+(defun draw (game)
+  (with-slots (renderer sprites) game
     (sdl2:set-render-draw-color renderer 255 255 255 255)
     (sdl2:render-clear renderer)
 
     (dolist (sprite sprites)
-      (draw-sprite obj sprite))
+      (draw-sprite game sprite))
 
     (sdl2:render-present renderer)))
 
-(defmethod draw-sprite ((obj game) sprite)
+(defun draw-sprite (game sprite)
   (with-slots (x-offset y-offset frame-count frame-width frame-height) (get-animation sprite)
     (let ((source-rect (make-rect (+ x-offset (* frame-count frame-width)) y-offset frame-width frame-height))
           (dest-rect (make-rect
@@ -62,29 +62,29 @@
                       (scale (sprite-y-position sprite))
                       (scale frame-width)
                       (scale frame-height))))
-      (render-texture obj (sprite-texture-key sprite) source-rect dest-rect))))
+      (render-texture game (sprite-texture-key sprite) source-rect dest-rect))))
 
-(defmethod render-texture ((obj game) texture-key source-rect dest-rect)
-  (sdl2:render-copy (game-renderer obj)
-                    (get-texture obj texture-key)
+(defun render-texture (game texture-key source-rect dest-rect)
+  (sdl2:render-copy (game-renderer game)
+                    (get-texture game texture-key)
                     :source-rect source-rect
                     :dest-rect dest-rect))
 
-(defmethod update ((obj game))
-  (dolist (sprite (game-sprites obj))
+(defun update (game)
+  (dolist (sprite (game-sprites game))
     (update-animation sprite)))
 
-(defmethod get-animation ((obj sprite))
-  (cdr (car (sprite-animations obj))))
+(defun get-animation (sprite)
+  (cdr (car (sprite-animations sprite))))
 
-(defmethod change-animation ((obj sprite) key)
-  (with-slots (animations) obj
+(defun change-animation (sprite key)
+  (with-slots (animations) sprite
     (let ((item (assoc key animations)))
       (when item
         (setf animations (cons item (remove item animations)))))))
 
-(defmethod update-animation ((obj sprite))
-  (with-slots (frame-count frame-total frame-duration frame-timer repeat) (get-animation obj)
+(defun update-animation (sprite)
+  (with-slots (frame-count frame-total frame-duration frame-timer repeat) (get-animation sprite)
     (when (> (incf frame-timer) frame-duration)
         (setf frame-timer 0)
         (when (= (incf frame-count) frame-total)
