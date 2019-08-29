@@ -55,7 +55,7 @@
     (sdl2:render-present renderer)))
 
 (defmethod draw-sprite ((obj game) sprite)
-  (with-slots (frame-count frame-width frame-height) (car (sprite-animations sprite))
+  (with-slots (frame-count frame-width frame-height) (get-animation sprite)
     (let ((source-rect (make-rect (* frame-count frame-width) 0 frame-width frame-height))
           (dest-rect (make-rect
                       (scale (sprite-x-position sprite))
@@ -72,10 +72,19 @@
 
 (defmethod update ((obj game))
   (dolist (sprite (game-sprites obj))
-    (update-animation (car (sprite-animations sprite)))))
+    (update-animation sprite)))
 
-(defmethod update-animation ((obj animation))
-  (with-slots (frame-count frame-total frame-duration frame-timer repeat) obj
+(defmethod get-animation ((obj sprite))
+  (cdr (car (sprite-animations obj))))
+
+(defmethod change-animation ((obj sprite) key)
+  (with-slots (animations) obj
+    (let ((item (assoc key animations)))
+      (when item
+        (setf animations (cons item (remove item animations)))))))
+
+(defmethod update-animation ((obj sprite))
+  (with-slots (frame-count frame-total frame-duration frame-timer repeat) (get-animation obj)
     (when (> (incf frame-timer) frame-duration)
         (setf frame-timer 0)
         (when (= (incf frame-count) frame-total)

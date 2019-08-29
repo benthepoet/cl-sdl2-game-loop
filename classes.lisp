@@ -1,9 +1,7 @@
 (in-package :cl-sdl2-game-loop)
 
 (defclass animation ()
-  ((name
-    :initarg :name)
-   (x-offset
+  ((x-offset
     :initarg :x-offset)
    (y-offset
     :initarg :y-offset)
@@ -49,9 +47,8 @@
     :initarg :textures
     :accessor game-textures)))
 
-(defun make-animation (name x-offset y-offset frame-width frame-height frame-total frame-duration repeat)
+(defun make-animation (x-offset y-offset frame-width frame-height frame-total frame-duration repeat)
   (make-instance 'animation
-                 :name name
                  :x-offset x-offset
                  :y-offset y-offset
                  :frame-width frame-width
@@ -65,7 +62,7 @@
                  :x-position x-position
                  :y-position y-position
                  :texture-key 'player
-                 :animations (list (make-animation :walk 0 0 24 24 4 10 t))))
+                 :animations (list (cons :walk (make-animation 0 0 24 24 4 10 t)))))
 
 (defun make-game (renderer)
   (make-instance 'game
